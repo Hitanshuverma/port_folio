@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:port_folio/screens/about.dart';
+import 'package:port_folio/screens/contact.dart';
+import 'package:port_folio/screens/home.dart';
+import 'package:port_folio/screens/projects.dart';
+import 'package:port_folio/screens/skills.dart';
 
 void main() {
   runApp(const MyApp());
@@ -7,109 +13,256 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Home(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+class Home extends StatefulWidget {
+  const Home({Key? key}) : super(key: key);
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+  // const Home({Key? key}) : super(key: key);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _HomeState createState() => _HomeState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+final homekey = GlobalKey();
+final aboutkey = GlobalKey();
+final skillkey = GlobalKey();
+final projectkey = GlobalKey();
+final conckey = GlobalKey();
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+List<GlobalKey<State<StatefulWidget>>> arr = <GlobalKey>[
+  homekey,
+  aboutkey,
+  skillkey,
+  projectkey,
+  conckey,
+];
+
+class _HomeState extends State<Home> {
+  List<IconData> icon = [
+    Feather.home,
+    Icons.person_outline_rounded,
+    Feather.book,
+    Feather.monitor,
+    Feather.mail,
+  ];
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    bool isFloatMin = true;
+
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+      body: Container(
+        color: Colors.grey[350],
+        child: Row(
+          children: [
+            Stack(
+              children: <Widget>[
+                Container(
+                  margin: const EdgeInsets.all(8.0),
+                  height: MediaQuery.of(context).size.height,
+                  // width: 50,
+                  width: MediaQuery.of(context).size.width < 500
+                      ? MediaQuery.of(context).size.width / 10
+                      : 50,
+                  decoration: BoxDecoration(
+                    color: const Color(0xff332A7C),
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  child: const NavBar(),
+                ),
+              ],
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+            Container(
+              // height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width - 70,
+              color: Colors.transparent,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    HomePage(key: homekey),
+                    About(key: aboutkey),
+                    Skill(key: skillkey),
+                    Project(key: projectkey),
+                    Contact(key: conckey),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+        backgroundColor: const Color(0xff332A7C),
+        mini: isFloatMin,
+        onPressed: () {
+          scrollToItem(homekey);
+        },
+        child: const Icon(
+          Icons.keyboard_arrow_up_rounded,
+        ),
+      ),
     );
   }
+}
+
+class NavBar extends StatefulWidget {
+  const NavBar({Key? key}) : super(key: key);
+
+  @override
+  _NavBarState createState() => _NavBarState();
+}
+
+class _NavBarState extends State<NavBar> {
+  List<IconData> icon = [
+    Feather.home,
+    Icons.person_outline_rounded,
+    Feather.book,
+    Feather.monitor,
+    Feather.mail,
+  ];
+
+  List<bool> selected = [
+    true,
+    false,
+    false,
+    false,
+    false,
+  ];
+
+  void updateSelected(int i) {
+    setState(() {
+      selected.setAll(0, [false, false, false, false, false]);
+      selected[i] = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    int index = -1;
+    int getIndex() {
+      index++;
+      return index;
+    }
+
+    return Stack(
+      children: [
+        Positioned(
+          top: 110,
+          child: Column(
+            children: icon
+                .map(
+                  (e) => NavbarItem(
+                    icon: e,
+                    pKey: arr[getIndex()],
+                    isSelected: selected[index],
+                    updateSelected: updateSelected,
+                    index: index,
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class NavbarItem extends StatefulWidget {
+  const NavbarItem({
+    Key? key,
+    required this.icon,
+    required this.isSelected,
+    required this.pKey,
+    required this.updateSelected,
+    required this.index,
+  }) : super(key: key);
+
+  final IconData icon;
+  final bool isSelected;
+  final GlobalKey pKey;
+  final Function updateSelected;
+  final int index;
+
+  @override
+  _NavbarItemState createState() => _NavbarItemState();
+}
+
+class _NavbarItemState extends State<NavbarItem> {
+  bool isHover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width < 500 ? MediaQuery.of(context).size.width/10 : 50,
+      color: Colors.transparent,
+      child: Stack(
+        children: [
+          SizedBox(
+            height: 80.0,
+            width: MediaQuery.of(context).size.width < 500 ? MediaQuery.of(context).size.width/7 : 50,
+            child: Center(
+              child: ElevatedButton(
+                child: SizedBox.fromSize(
+                  size: Size.fromRadius(widget.isSelected ? 14 : boxSize()),
+                  child: FittedBox(
+                    child: Icon(
+                      widget.icon,
+                      color: widget.isSelected ? Colors.black : Colors.white,
+                    ),
+                  ),
+                ),
+                style: ButtonStyle(
+                  overlayColor: MaterialStateProperty.all(Colors.transparent),
+                  backgroundColor: widget.isSelected
+                      ? MaterialStateProperty.all(Colors.grey[350])
+                      : MaterialStateProperty.all(const Color(0xff332A7C)),
+                  elevation: MaterialStateProperty.all(0),
+                  padding: MaterialStateProperty.all(EdgeInsets.zero),
+                  shape: MaterialStateProperty.all(
+                    const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(40),
+                        bottomLeft: Radius.circular(40),
+                      ),
+                    ),
+                  ),
+                  minimumSize:
+                      MaterialStateProperty.all(const Size(60.0, 60.0)),
+                ),
+                onHover: (isTrue) {
+                  setState(() {
+                    isHover = isTrue;
+                  });
+                },
+                onPressed: () {
+                  scrollToItem(widget.pKey);
+                  widget.updateSelected(widget.index);
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  boxSize() {
+    return isHover ? 15 : 10;
+  }
+}
+
+Future scrollToItem(GlobalKey itemkey) async {
+  final context = itemkey.currentContext!;
+  await Scrollable.ensureVisible(
+    context,
+    duration: const Duration(milliseconds: 400),
+  );
 }

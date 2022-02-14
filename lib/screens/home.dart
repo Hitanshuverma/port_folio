@@ -13,7 +13,7 @@ class _HomePageState extends State<HomePage> {
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width - 70,
       // color: Colors.purple,
-      child: Text('home'),
+      child: Text('my home'),
       color: Colors.transparent,
     );
   }

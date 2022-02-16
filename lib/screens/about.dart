@@ -43,12 +43,16 @@ class _AboutState extends State<About> {
             ),
             Container(
               // color: Colors.yellow,
-              margin: EdgeInsets.symmetric(vertical: 30,horizontal: MediaQuery.of(context).size.width/5),
+              margin: EdgeInsets.symmetric(
+                  vertical: 30,
+                  horizontal: MediaQuery.of(context).size.width < 500
+                      ? MediaQuery.of(context).size.width / 6
+                      : MediaQuery.of(context).size.width / 5),
               // decoration: BoxDecoration(
               //
               // ),
               child: const Text(
-                  'Hey! My name is Mishthi Singhal and I am currently a sophomore at IIIT Bhopal pursuing B.tech degree in Computer Science. Im Core Team member at IIITians Network-Student Tech Community and Google Developer Student Clubs(GDSC),IIIT Bhopal. I am an aspiring Full Stack Web Developer and also exploring the feild of Competitive Programming. I am currently learning Backend Development and Data Structures and Algorithms. I have good communication and interpersonal skills and look forward to listen ideas of other people.',
+                'Hey! My name is Mishthi Singhal and I am currently a sophomore at IIIT Bhopal pursuing B.tech degree in Computer Science. Im Core Team member at IIITians Network-Student Tech Community and Google Developer Student Clubs(GDSC),IIIT Bhopal. I am an aspiring Full Stack Web Developer and also exploring the feild of Competitive Programming. I am currently learning Backend Development and Data Structures and Algorithms. I have good communication and interpersonal skills and look forward to listen ideas of other people.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 20,
@@ -63,7 +67,9 @@ class _AboutState extends State<About> {
             ),
             Container(
               // color: Colors.yellow,
-              margin: EdgeInsets.symmetric(vertical: 30,horizontal: MediaQuery.of(context).size.width/5),
+              margin: EdgeInsets.symmetric(
+                  vertical: 30,
+                  horizontal: MediaQuery.of(context).size.width / 5),
               // decoration: BoxDecoration(
               //
               // ),

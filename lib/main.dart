@@ -5,6 +5,7 @@ import 'package:port_folio/screens/contact.dart';
 import 'package:port_folio/screens/home.dart';
 import 'package:port_folio/screens/projects.dart';
 import 'package:port_folio/screens/skills.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,27 +26,14 @@ class MyApp extends StatelessWidget {
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
-  // const Home({Key? key}) : super(key: key);
-
   @override
   _HomeState createState() => _HomeState();
 }
 
-final homekey = GlobalKey();
-final aboutkey = GlobalKey();
-final skillkey = GlobalKey();
-final projectkey = GlobalKey();
-final conckey = GlobalKey();
-
-List<GlobalKey<State<StatefulWidget>>> arr = <GlobalKey>[
-  homekey,
-  aboutkey,
-  skillkey,
-  projectkey,
-  conckey,
-];
+final itemController = ItemScrollController();
 
 class _HomeState extends State<Home> {
+  final itemListener = ItemPositionsListener.create();
   List<IconData> icon = [
     Feather.home,
     Icons.person_outline_rounded,
@@ -54,13 +42,48 @@ class _HomeState extends State<Home> {
     Feather.mail,
   ];
 
+  List<Widget> pages = [
+    const HomePage(),
+    const About(),
+    const Skill(),
+    const Project(),
+    const Contact(),
+  ];
+
+  Widget getPages(int index) {
+    return pages[index];
+  }
+
+  int value = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    itemListener.itemPositions.addListener(() {
+      final indices = itemListener.itemPositions.value
+          .where((element) {
+            final isMidCross = element.itemLeadingEdge <= 0.5;
+            final isBaseCross = element.itemTrailingEdge >= 0.5;
+            return isMidCross & isBaseCross;
+          })
+          .map((e) => e.index)
+          .toList();
+      int i = indices.isEmpty ? -1 : indices[0];
+      if (value != i) {
+        setState(() {
+          value = i;
+        });
+        // print("im changing index to $value");
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isFloatMin = true;
-
     return Scaffold(
       body: Container(
-        color: Colors.grey[350],
+        color: Colors.grey[400],
         child: Row(
           children: [
             Stack(
@@ -68,7 +91,6 @@ class _HomeState extends State<Home> {
                 Container(
                   margin: const EdgeInsets.all(8.0),
                   height: MediaQuery.of(context).size.height,
-                  // width: 50,
                   width: MediaQuery.of(context).size.width < 500
                       ? MediaQuery.of(context).size.width / 10
                       : 50,
@@ -76,24 +98,21 @@ class _HomeState extends State<Home> {
                     color: const Color(0xff332A7C),
                     borderRadius: BorderRadius.circular(20.0),
                   ),
-                  child: const NavBar(),
+                  child: NavBar(selected: value),
                 ),
               ],
             ),
             Container(
-              // height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width - 70,
+              width: MediaQuery.of(context).size.width < 500
+                  ? (MediaQuery.of(context).size.width) -
+                      ((MediaQuery.of(context).size.width / 10) + 16)
+                  : MediaQuery.of(context).size.width - 66,
               color: Colors.transparent,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    HomePage(key: homekey),
-                    About(key: aboutkey),
-                    Skill(key: skillkey),
-                    Project(key: projectkey),
-                    Contact(key: conckey),
-                  ],
-                ),
+              child: ScrollablePositionedList.builder(
+                itemCount: 5,
+                itemBuilder: (context, index) => getPages(index),
+                itemScrollController: itemController,
+                itemPositionsListener: itemListener,
               ),
             ),
           ],
@@ -103,7 +122,7 @@ class _HomeState extends State<Home> {
         backgroundColor: const Color(0xff332A7C),
         mini: isFloatMin,
         onPressed: () {
-          scrollToItem(homekey);
+          scrollToItem(0);
         },
         child: const Icon(
           Icons.keyboard_arrow_up_rounded,
@@ -113,8 +132,12 @@ class _HomeState extends State<Home> {
   }
 }
 
+int scrollChecker = -3;
+
 class NavBar extends StatefulWidget {
-  const NavBar({Key? key}) : super(key: key);
+  const NavBar({Key? key, required this.selected}) : super(key: key);
+
+  final int selected;
 
   @override
   _NavBarState createState() => _NavBarState();
@@ -140,12 +163,18 @@ class _NavBarState extends State<NavBar> {
   void updateSelected(int i) {
     setState(() {
       selected.setAll(0, [false, false, false, false, false]);
-      selected[i] = true;
+      if (i >= 0) {
+        selected[i] = true;
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.selected != scrollChecker) {
+      updateSelected(widget.selected);
+    }
+
     int index = -1;
     int getIndex() {
       index++;
@@ -161,8 +190,8 @@ class _NavBarState extends State<NavBar> {
                 .map(
                   (e) => NavbarItem(
                     icon: e,
-                    pKey: arr[getIndex()],
-                    isSelected: selected[index],
+                    // pKey: arr[getIndex()],
+                    isSelected: selected[getIndex()],
                     updateSelected: updateSelected,
                     index: index,
                   ),
@@ -180,14 +209,12 @@ class NavbarItem extends StatefulWidget {
     Key? key,
     required this.icon,
     required this.isSelected,
-    required this.pKey,
     required this.updateSelected,
     required this.index,
   }) : super(key: key);
 
   final IconData icon;
   final bool isSelected;
-  final GlobalKey pKey;
   final Function updateSelected;
   final int index;
 
@@ -201,13 +228,17 @@ class _NavbarItemState extends State<NavbarItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width < 500 ? MediaQuery.of(context).size.width/10 : 50,
+      width: MediaQuery.of(context).size.width < 500
+          ? MediaQuery.of(context).size.width / 10
+          : 50,
       color: Colors.transparent,
       child: Stack(
         children: [
           SizedBox(
             height: 80.0,
-            width: MediaQuery.of(context).size.width < 500 ? MediaQuery.of(context).size.width/7 : 50,
+            width: MediaQuery.of(context).size.width < 500
+                ? MediaQuery.of(context).size.width / 7
+                : 50,
             child: Center(
               child: ElevatedButton(
                 child: SizedBox.fromSize(
@@ -222,9 +253,11 @@ class _NavbarItemState extends State<NavbarItem> {
                 style: ButtonStyle(
                   overlayColor: MaterialStateProperty.all(Colors.transparent),
                   backgroundColor: widget.isSelected
-                      ? MaterialStateProperty.all(Colors.grey[350])
+                      ? MaterialStateProperty.all(Colors.grey[400])
                       : MaterialStateProperty.all(const Color(0xff332A7C)),
-                  elevation: MaterialStateProperty.all(0),
+                  elevation: widget.isSelected
+                      ? MaterialStateProperty.all(10)
+                      : MaterialStateProperty.all(0),
                   padding: MaterialStateProperty.all(EdgeInsets.zero),
                   shape: MaterialStateProperty.all(
                     const RoundedRectangleBorder(
@@ -243,7 +276,7 @@ class _NavbarItemState extends State<NavbarItem> {
                   });
                 },
                 onPressed: () {
-                  scrollToItem(widget.pKey);
+                  scrollToItem(widget.index);
                   widget.updateSelected(widget.index);
                 },
               ),
@@ -259,10 +292,9 @@ class _NavbarItemState extends State<NavbarItem> {
   }
 }
 
-Future scrollToItem(GlobalKey itemkey) async {
-  final context = itemkey.currentContext!;
-  await Scrollable.ensureVisible(
-    context,
-    duration: const Duration(milliseconds: 400),
+Future scrollToItem(int index) async {
+  itemController.scrollTo(
+    index: index,
+    duration: const Duration(milliseconds: 300),
   );
 }

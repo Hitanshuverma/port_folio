@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:port_folio/screens/about.dart';
 import 'package:port_folio/screens/contact.dart';
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Home(),//home
+      home: Home(), //home
     );
   }
 }
@@ -83,7 +84,20 @@ class _HomeState extends State<Home> {
     bool isFloatMin = true;
     return Scaffold(
       body: Container(
-        color: Colors.grey[400],
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xffe0dddd),
+              Color(0xffd0cece),
+              Color(0xffbdbdbd),
+              Color(0xff424242),
+              Color(0xff212121),
+            ],
+          ),
+        ),
+        // color: Color(0xffe0dddd),
         child: Row(
           children: [
             Stack(
@@ -118,16 +132,18 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xff332A7C),
-        mini: isFloatMin,
-        onPressed: () {
-          scrollToItem(0);
-        },
-        child: const Icon(
-          Icons.keyboard_arrow_up_rounded,
-        ),
-      ),
+      floatingActionButton: value == 0
+          ? null
+          : FloatingActionButton(
+              backgroundColor: const Color(0xff332A7C),
+              mini: isFloatMin,
+              onPressed: () {
+                scrollToItem(0);
+              },
+              child: const Icon(
+                Icons.keyboard_arrow_up_rounded,
+              ),
+            ),
     );
   }
 }
@@ -184,7 +200,16 @@ class _NavBarState extends State<NavBar> {
     return Stack(
       children: [
         Positioned(
-          top: 110,
+          top: 20,
+          left: MediaQuery.of(context).size.width < 500
+              ? MediaQuery.of(context).size.width/200
+              : 7.5,
+          child: MediaQuery.of(context).size.width < 500
+              ? Image.asset('logo_white.png')
+              : Image.asset('logo_white35x55.png'),
+        ),
+        Positioned(
+          top: 140,
           child: Column(
             children: icon
                 .map(
@@ -223,7 +248,16 @@ class NavbarItem extends StatefulWidget {
 }
 
 class _NavbarItemState extends State<NavbarItem> {
+  OverlayEntry? entry;
   bool isHover = false;
+
+  List<String> overlayText = [
+    "Home",
+    "About Me",
+    "Skills",
+    "Projects",
+    "Contact Me",
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -253,7 +287,9 @@ class _NavbarItemState extends State<NavbarItem> {
                 style: ButtonStyle(
                   overlayColor: MaterialStateProperty.all(Colors.transparent),
                   backgroundColor: widget.isSelected
-                      ? MaterialStateProperty.all(Colors.grey[400])
+                      ? MaterialStateProperty.all(
+                          const Color(0xffe0dddd),
+                        )
                       : MaterialStateProperty.all(const Color(0xff332A7C)),
                   elevation: widget.isSelected
                       ? MaterialStateProperty.all(10)
@@ -274,10 +310,12 @@ class _NavbarItemState extends State<NavbarItem> {
                   setState(() {
                     isHover = isTrue;
                   });
+                  hoverBox();
                 },
                 onPressed: () {
                   scrollToItem(widget.index);
                   widget.updateSelected(widget.index);
+                  hideOverlay();
                 },
               ),
             ),
@@ -289,6 +327,62 @@ class _NavbarItemState extends State<NavbarItem> {
 
   boxSize() {
     return isHover ? 15 : 10;
+  }
+
+  hoverBox() {
+    //print(isHover);
+    if (widget.isSelected) {
+      return Container(
+        color: Colors.transparent,
+      );
+    }
+    return isHover ? showOverlay() : hideOverlay();
+  }
+
+  void showOverlay() {
+    List<double?> yPos = [
+      171,
+      251,
+      331,
+      411,
+      491,
+    ];
+    entry = OverlayEntry(
+      builder: (context) => Positioned(
+        left: MediaQuery.of(context).size.width < 500
+            ? ((MediaQuery.of(context).size.width / 10) + 16)
+            : 66,
+        top: yPos[widget.index],
+        child: ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(
+              const Color(0xff332A7C),
+            ),
+            shape: MaterialStateProperty.all(
+              const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(40)),
+              ),
+            ),
+          ),
+          onPressed: () {},
+          child: SizedBox(
+              height: 40,
+              child: Center(
+                child: Text(
+                  overlayText[widget.index],
+                  style: TextStyle(fontSize: boxSize()),
+                ),
+              )),
+        ),
+      ),
+    );
+    final overlay = Overlay.of(context)!;
+    overlay.insert(entry!);
+  }
+
+  void hideOverlay() {
+    entry?.remove();
+    entry = null;
   }
 }
 

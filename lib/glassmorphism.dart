@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 class Glass extends StatelessWidget {
@@ -8,25 +7,28 @@ class Glass extends StatelessWidget {
     required this.blur,
     required this.opacity,
     required this.child,
+    required this.color,
+    required this.br,
   }) : super(key: key);
 
   final double blur;
   final double opacity;
   final Widget child;
+  final Color? color;
+  final double br;
 
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      // borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(br),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(opacity),
-            // borderRadius: const BorderRadius.all(Radius.circular(20)),
+            color: color!.withOpacity(opacity),
             border: Border.all(
-              width: 1.5,
-              color: Colors.white.withOpacity(0.2),
+              width: 0.0,
+              color: Colors.transparent.withOpacity(0.2),
             ),
           ),
           child: child,
